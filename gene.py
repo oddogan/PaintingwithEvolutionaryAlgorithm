@@ -4,6 +4,7 @@ class Gene():
 
     def __init__(self, center, radius, colors, width, height):
         
+        # If the gene is completely outside the image, its validity value is False
         if(not self.collision(0, 0, width, height, center[0], center[1], radius)):
             self.center = center
             self.radius = radius
@@ -23,6 +24,7 @@ class Gene():
             self.colors = colors[:-1]
             self.alpha = colors[-1]
         
+    # Check if the gene's brushstroke coincides with the image border
     def collision(self, rleft, rtop, width, height,   # rectangle definition
                 center_x, center_y, radius):  # circle definition
         """ Detect collision between a rectangle and circle. """

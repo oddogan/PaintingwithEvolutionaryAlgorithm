@@ -4,6 +4,7 @@ import random
 from datetime import datetime
 random.seed(datetime.now())
 
+# The minimum and maximum radius values for genes
 RAD_MIN = 1
 RAD_MAX = 50
 
@@ -25,6 +26,8 @@ class Individual():
 
         # Initialize the genes in the chromosome
         for i in range(num_genes):
+
+            # Try new genes until a valid gene (which is not completely outside the image) is created
             while True:
                 # Initialize the radius value
                 radius = random.randint(RAD_MIN, RAD_MAX)
@@ -88,5 +91,6 @@ class Individual():
     def getGeneRadius(self, gene):
         return gene.radius
 
+    # Sort genes according to their radius
     def sortGenes(self):
         self.chromosome.sort(reverse = True, key = self.getGeneRadius)

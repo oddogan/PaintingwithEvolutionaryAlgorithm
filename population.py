@@ -4,6 +4,7 @@ from gene import Gene
 from datetime import datetime
 random.seed(datetime.now())
 
+# The minimum and maximum radius values for genes
 RAD_MIN = 1
 RAD_MAX = 50
 
@@ -30,6 +31,7 @@ class Population():
         for i in range(self.size):
             self.individuals.append(Individual(width, height, channels, num_genes))
 
+    # Evaluate the all individuals, determine the best individual
     def evalPopulation(self):
 
         for ind in self.individuals:
@@ -43,18 +45,17 @@ class Population():
     def getFitness(self, ind):
         return ind.fitness
 
+    # Sort individuals according to their fitness
     def sortIndividuals(self):
         self.individuals.sort(reverse = True, key = self.getFitness)
 
     # The implementation of the tournament selection
     def tournamentSelection(self, tmsize):
-        # nonElites = self.individuals[self.elite_count:]
-        nonElites = self.individuals
-        best = nonElites[random.randint(0, len(nonElites)-1)] # The first competitor
+        best = self.individuals[random.randint(0, len(self.individuals)-1)] # The first competitor
         best.evalFitness(self.source)
 
         while(tmsize > 1):
-            ind = nonElites[random.randint(0, len(nonElites)-1)] # Randomly select a competitor
+            ind = self.individuals[random.randint(0, len(self.individuals)-1)] # Randomly select a competitor
 
             if ind.evalFitness(self.source) > best.fitness: # Determine competitor with best fitness
                 best = ind
@@ -70,16 +71,19 @@ class Population():
         remaining = self.size
         self.buffer = []
 
+        # Copy the elites to the buffer first
         if self.elitist:
             for elite in range(self.elite_count):
                 sel_elite = copy.deepcopy(self.individuals[elite])
                 self.buffer.append(sel_elite)
                 remaining = remaining - 1
 
+        # Select the remaining individuals using tournament selection
         while(remaining > 0):
             self.buffer.append(self.tournamentSelection(tmsize))
             remaining = remaining - 1
         
+        # Copy the individuals back to the individual list from the buffer
         while(remaining < self.size):
             self.individuals[remaining] = self.buffer[remaining]
             remaining = remaining + 1
@@ -102,7 +106,8 @@ class Population():
     def individualMutation(self, ind, probability, method):
         if method == 'unguided':
             while random.random() < probability:
-                self.indUnguidedMutation(ind.chromosome[random.randint(0, self.num_genes-1)])
+                index = random.randint(0, self.num_genes-1)
+                self.indUnguidedMutation(ind, index)
                 ind.fitness = 1
                 print("Mutated!")
         elif method == 'guided':
@@ -114,7 +119,8 @@ class Population():
             return
 
     # The unguided mutation
-    def indUnguidedMutation(self, gene):
+    def indUnguidedMutation(self, ind, index):
+        # Try new genes until a valid gene (which is not completely outside the image) is created
         while True:
                 # Initialize the radius value
                 radius = random.randint(RAD_MIN, RAD_MAX)
@@ -134,9 +140,9 @@ class Population():
 
                 if newGene.valid:
                     break
-        gene = newGene
+        ind.chromosome[index] = newGene
 
-    # The guided mutation
+    # The guided mutation (the description is given in the manual)
     def indGuidedMutation(self, gene):
         x = gene.center[0]
         y = gene.center[1]
